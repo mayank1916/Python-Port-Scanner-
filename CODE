@@ -1,0 +1,32 @@
+import socket
+import sys
+import threading
+import time
+
+if len(sys.argv) != 4:
+    print("Usage: python port_scan.py TARGET START_PORT END_PORT")
+    sys.exit()
+
+target = sys.argv[1]
+start_port = int(sys.argv[2])
+end_port = int(sys.argv[3])
+
+def scan(port):
+    s = socket.socket()
+    s.settimeout(1)
+    if s.connect_ex((target, port)) == 0:
+        print(f"Port {port} is OPEN")
+    s.close()
+
+start = time.time()
+
+threads = []
+for port in range(start_port, end_port + 1):
+    t = threading.Thread(target=scan, args=(port,))
+    t.start()
+    threads.append(t)
+
+for t in threads:
+    t.join()
+
+print(f"Scan completed in {time.time() - start:.2f} seconds")
